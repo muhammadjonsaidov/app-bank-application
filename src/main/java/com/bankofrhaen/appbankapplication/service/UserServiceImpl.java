@@ -2,9 +2,11 @@ package com.bankofrhaen.appbankapplication.service;
 
 import com.bankofrhaen.appbankapplication.dto.AccountInfo;
 import com.bankofrhaen.appbankapplication.dto.BankResponse;
+import com.bankofrhaen.appbankapplication.dto.EmailDetails;
 import com.bankofrhaen.appbankapplication.dto.UserDTO;
 import com.bankofrhaen.appbankapplication.entity.User;
 import com.bankofrhaen.appbankapplication.repository.UserRepository;
+import com.bankofrhaen.appbankapplication.service.impl.EmailService;
 import com.bankofrhaen.appbankapplication.service.impl.UserService;
 import com.bankofrhaen.appbankapplication.util.AccountUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import java.math.BigDecimal;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
+    private final EmailService emailService;
 
     @Override
     public BankResponse createAccount(UserDTO userDTO) {
@@ -50,6 +54,19 @@ public class UserServiceImpl implements UserService {
 
 
         User savedUser = userRepository.save(newUser);
+
+        // Send email alert to the user
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedUser.getEmail())
+                .subject("ACCOUNT CREATION")
+                .msgBody("Dear " + savedUser.getFirstName() + ",\n\n" +
+                        "Your account has been created successfully. Your account number is: " + savedUser.getAccountNumber() + "\n\n" +
+                        "Thank you for choosing us.\n\n" +
+                        "Best regards,\n" +
+                        "Bank of Rhaen")
+                .build();
+        emailService.sendEmailAlert(emailDetails);
+
         return BankResponse.builder()
                 .code(AccountUtils.ACCOUNT_CREATION_SUCCESS)
                 .message(AccountUtils.ACCOUNT_CREATION_MESSAGE)
