@@ -111,4 +111,31 @@ public class UserServiceImpl implements UserService {
         User foundUser = userRepository.findByAccountNumber(enquiryDTO.getAccountNumber());
         return foundUser.getFirstName() + " " + foundUser.getLastName() + " " + foundUser.getOtherName();
     }
+
+    @Override
+    public BankResponse creditAccount(CreditDebitDTO creditDebitDTO) {
+        // checking if an account exists
+        boolean isAccountExists = userRepository.existsByAccountNumber(creditDebitDTO.getAccountNumber());
+        if (!isAccountExists) {
+            return BankResponse.builder()
+                    .code(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .message(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User userToCredit = userRepository.findByAccountNumber(creditDebitDTO.getAccountNumber());
+        userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(creditDebitDTO.getAmount()));
+        userRepository.save(userToCredit);
+
+        return BankResponse.builder()
+                .code(AccountUtils.ACCOUNT_CREDITED_SUCCESS)
+                .message(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
+                .accountInfo(AccountInfo.builder()
+                        .accountName(userToCredit.getFirstName() + " " + userToCredit.getLastName() + " " + userToCredit.getOtherName())
+                        .accountBalance(userToCredit.getAccountBalance())
+                        .accountNumber(userToCredit.getAccountNumber())
+                        .build())
+                .build();
+    }
 }
