@@ -1,6 +1,7 @@
 package com.bankofrhaen.appbankapplication.controller;
 
 import com.bankofrhaen.appbankapplication.dto.BankResponse;
+import com.bankofrhaen.appbankapplication.dto.CreditDebitDTO;
 import com.bankofrhaen.appbankapplication.dto.EnquiryDTO;
 import com.bankofrhaen.appbankapplication.dto.UserDTO;
 import com.bankofrhaen.appbankapplication.service.impl.UserService;
@@ -23,5 +24,10 @@ public record UserController(UserService userService) {
     @GetMapping("/nameEnquiry")
     public String nameEnquiry(@RequestBody EnquiryDTO enquiryDTO) {
         return userService.nameEnquiry(enquiryDTO);
+    }
+
+    @PostMapping("/credit")
+    public BankResponse creditAccount(@RequestBody CreditDebitDTO creditDebitDTO) {
+        return userService.creditAccount(creditDebitDTO);
     }
 }
