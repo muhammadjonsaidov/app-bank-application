@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -135,6 +136,43 @@ public class UserServiceImpl implements UserService {
                         .accountName(userToCredit.getFirstName() + " " + userToCredit.getLastName() + " " + userToCredit.getOtherName())
                         .accountBalance(userToCredit.getAccountBalance())
                         .accountNumber(userToCredit.getAccountNumber())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public BankResponse debitAccount(CreditDebitDTO creditDebitDTO) {
+        boolean isAccountExists = userRepository.existsByAccountNumber(creditDebitDTO.getAccountNumber());
+        if (!isAccountExists) {
+            return BankResponse.builder()
+                    .code(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .message(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User userToDebit = userRepository.findByAccountNumber(creditDebitDTO.getAccountNumber());
+        BigDecimal availableBalance = userToDebit.getAccountBalance();
+        BigDecimal debitAmount = creditDebitDTO.getAmount();
+
+        if (availableBalance.intValue() < debitAmount.intValue()) {
+            return BankResponse.builder()
+                    .code(AccountUtils.INSUFFICIENT_BALANCE_CODE)
+                    .message(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(creditDebitDTO.getAmount()));
+        userRepository.save(userToDebit);
+
+        return BankResponse.builder()
+                .code(AccountUtils.ACCOUNT_DEBITED_SUCCESS)
+                .message(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
+                .accountInfo(AccountInfo.builder()
+                        .accountName(userToDebit.getFirstName() + " " + userToDebit.getLastName() + " " + userToDebit.getOtherName())
+                        .accountBalance(userToDebit.getAccountBalance())
+                        .accountNumber(userToDebit.getAccountNumber())
                         .build())
                 .build();
     }
