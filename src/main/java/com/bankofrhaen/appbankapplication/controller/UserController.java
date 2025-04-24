@@ -30,4 +30,9 @@ public record UserController(UserService userService) {
     public BankResponse creditAccount(@RequestBody CreditDebitDTO creditDebitDTO) {
         return userService.creditAccount(creditDebitDTO);
     }
+
+    @PostMapping("/debit")
+    public BankResponse debitAccount(@RequestBody CreditDebitDTO creditDebitDTO) {
+        return userService.debitAccount(creditDebitDTO);
+    }
 }

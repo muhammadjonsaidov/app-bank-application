@@ -21,6 +21,12 @@ public class AccountUtils {
     public static final String  ACCOUNT_CREDITED_SUCCESS = "005";
     public static final String  ACCOUNT_CREDITED_SUCCESS_MESSAGE = "Account credited successfully!";
 
+    public static final String INSUFFICIENT_BALANCE_CODE = "006";
+    public static final String INSUFFICIENT_BALANCE_MESSAGE = "Insufficient balance!";
+
+    public static final String ACCOUNT_DEBITED_SUCCESS = "007";
+    public static final String ACCOUNT_DEBITED_SUCCESS_MESSAGE = "Account has been successfully debited!";
+
 
     /**
      * 2025 + randomSixDigits
